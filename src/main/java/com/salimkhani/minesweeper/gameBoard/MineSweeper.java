@@ -18,36 +18,40 @@ public class MineSweeper {
         }
     }
     private final JFrame _frame = new JFrame("MineSweeper");
+    public boolean isActive = false;
     private final JLabel _textLabel = new JLabel();
     private final JPanel _textPanel = new JPanel();
     private final JPanel _boardPanel = new JPanel();
-    private final int tileSize = 70;
+    private final int tileSize = 50;
     private final int numRows;
     private final int numCols;
     private final int boardWith;
     private final int boardHeight;
-    private final int mineCount = 10;
+    private int mineCount ;
     private MineTile[][] board;
     private ArrayList<MineTile> mineList ;
     private Random random = new Random();
     private int tilesClicked = 0;
     boolean gameOver = false;
-    private MineSweeper(int rows, int cols, String iconPath)
+    private MineSweeper(int rows, int cols, String iconPath, JFrame parent)
     {
         numRows = rows;
         numCols = cols;
         boardWith = numCols * tileSize;
         boardHeight = numRows * tileSize;
-        InitializeComponents(iconPath);
+        mineCount = random.nextInt(numRows) + 3;
+        if (mineCount < numRows* 3)
+            mineCount *= 2;
+        InitializeComponents(iconPath, parent);
     }
 
-    private void InitializeComponents(String iconPath) {
+    private void InitializeComponents(String iconPath, JFrame parent) {
 
         ImageIcon icon = new ImageIcon(iconPath);
         _frame.setSize(boardWith, boardHeight);
         _frame.setResizable(false);
-        _frame.setLocationRelativeTo(null);
-        _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        _frame.setLocationRelativeTo(parent);
+        _frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         _frame.setLayout(new BorderLayout());
         _frame.setIconImage(icon.getImage());
 
@@ -66,6 +70,7 @@ public class MineSweeper {
         board = new MineTile[numRows][numCols];
         fillBoard();
         _frame.setVisible(true);
+        isActive = _frame.isActive();
         setMines();
     }
 
@@ -196,10 +201,12 @@ public class MineSweeper {
         _textLabel.setText("Game Over!");
     }
 
-    public static MineSweeper getInstance(int rows, int cols, String iconPath)
+    public static MineSweeper getInstance(int rows, int cols, String iconPath, JFrame parent)
     {
         if (_instance == null)
-            _instance = new MineSweeper(rows, cols, iconPath);
+            _instance = new MineSweeper(rows, cols, iconPath, parent);
+        else if (_instance != null && !_instance.isActive)
+            _instance = new MineSweeper(rows, cols, iconPath, parent);
         return _instance;
     }
 }
